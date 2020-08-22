@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Tasks from '/imports/api/tasks';
 
-export const TaskForm = () => {
+export const TaskForm = ({ user }) => {
   const [text, setText] = useState('');
 
   const handleSubmit = () => {
@@ -10,6 +10,7 @@ export const TaskForm = () => {
     Tasks.insert({
       text: text.trim(),
       createdAt: new Date(),
+      owner: user._id,
     });
 
     setText('');

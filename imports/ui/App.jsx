@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import { useTracker } from 'meteor/react-meteor-data';
 import _ from 'lodash';
 import { Task } from './Task';
-import Tasks from '/imports/api/tasks';
+import { Tasks } from '/imports/api/tasks';
 import { TaskForm } from './TaskForm';
 import { LoginForm } from './LoginForm';
 
 const toggleChecked = ({ _id, isChecked }) => {
-  Tasks.update(_id, {
-    $set: {
-      isChecked: !isChecked,
-    },
-  });
+  Meteor.call('tasks.setChecked', _id, !isChecked);
+};
+
+const togglePrivate = ({ _id, isPrivate }) => {
+  Meteor.call('tasks.setPrivate', _id, !isPrivate);
 };
 
 const deleteTask = ({ _id }) => Tasks.remove(_id);
@@ -24,11 +24,15 @@ export const App = () => {
     _.set(filter, 'checked', false);
   }
 
-  const { tasks, incompleteTasksCount, user } = useTracker(() => ({
-    tasks: Tasks.find(filter, { sort: { createdAt: -1 } }).fetch(),
-    incompleteTasksCount: Tasks.find({ checked: { $ne: true } }).count(),
-    user: Meteor.user(),
-  }));
+  const { tasks, incompleteTasksCount, user } = useTracker(() => {
+    Meteor.subscribe('tasks');
+
+    return {
+      tasks: Tasks.find(filter, { sort: { createdAt: -1 } }).fetch(),
+      incompleteTasksCount: Tasks.find({ checked: { $ne: true } }).count(),
+      user: Meteor.user(),
+    };
+  });
 
   if (!user) {
     return (
@@ -60,10 +64,11 @@ export const App = () => {
             task={task}
             onCheckboxClick={toggleChecked}
             onDeleteClick={deleteTask}
+            onTogglePrivateClick={togglePrivate}
           />
         ))}
       </ul>
-      <TaskForm />
+      <TaskForm user={user} />
     </div>
   );
 };
