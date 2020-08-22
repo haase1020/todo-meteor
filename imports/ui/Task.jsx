@@ -1,7 +1,7 @@
 import React from 'react';
 import classnames from 'classnames';
 
-export const Task = ({ task, onCheckboxClick }) => {
+export const Task = ({ task, onCheckboxClick, onDeleteClick }) => {
   const classes = classnames('task', {
     checked: Boolean(task.isChecked),
   });
@@ -16,7 +16,6 @@ export const Task = ({ task, onCheckboxClick }) => {
         onClick={() => onCheckboxClick(task)}
         readOnly
       />
-      <span>{task.text}</span>
     </li>
   );
 };
